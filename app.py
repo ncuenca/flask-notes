@@ -10,6 +10,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///flask_notes'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
+app.config['SECRET_KEY'] = 'bababoeey'
+
 connect_db(app)
 db.create_all()
 
