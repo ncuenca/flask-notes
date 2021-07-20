@@ -44,7 +44,7 @@ def register_page():
         db.session.add(user)
         db.session.commit()
 
-        session['user'] = user.username
+        session['user'] = username
         return redirect("/secret")
 
     else:
@@ -63,14 +63,29 @@ def login_page():
         user = User.authenticate(username, password)
 
         if user:
-            session['user'] = user.username
-            return redirect("/secret")
+            session['user'] = username
+            return redirect(f"/users/{username}")
         else:
             form.username.errors = ["Wrong username/password combination"]
-
     else:
         return render_template("login.html", form=form)
     
-@app.route('/secret')
-def secret_page():
-    return 'You made it!'
+@app.route('/users/<username>')
+def secret_page(username):
+    """If the user is logged in, let them see this page,
+    otherwise redirect to login"""
+    # breakpoint()
+    if "user" not in session:
+        # flash("You must be logged in to view!")
+        return redirect("/login")
+    elif session.get('user') != username:
+        return redirect(f"/users/{session['user']}")
+        
+    user = User.query.get_or_404(username)
+    return render_template("user_info.html", user=user)
+    
+@app.route('/logout')
+def logout_user():
+    """logs the user out and redirects"""
+    session.pop("user", None)
+    return redirect("/")

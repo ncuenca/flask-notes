@@ -31,10 +31,10 @@ class User(db.Model):
                     nullable=False)                
 
     @classmethod
-    def register(cls, username, pwd, email, first_name, last_name):
+    def register(cls, username, password, email, first_name, last_name):
         """Register user w/hashed password & return user."""
 
-        hashed = Bcrypt().generate_password_hash(pwd).decode('utf8')
+        hashed = Bcrypt().generate_password_hash(password).decode('utf8')
 
         # return instance of user w/username and hashed pwd
         return cls(
