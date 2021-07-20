@@ -9,4 +9,15 @@
     <li>{{user.last_name}}</li>
 </ul>
 
+<ul>
+    <!-- TODO: add links to edit/delete each note -->
+    {% for note in user.notes %}
+        {{ note.title }}
+    {% endfor %}
+</ul>
+
+<!-- TODO: add link to form to add notes -->
+<!-- TODO: add button to delete user account and notes -->
+
+
 {% endblock %}  

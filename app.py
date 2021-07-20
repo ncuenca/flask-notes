@@ -2,8 +2,8 @@
 
 
 from flask import Flask, render_template, redirect, session
-from models import db, connect_db, User
-from forms import RegisterUserForm, LoginUserForm
+from models import db, connect_db, User, Note
+from forms import RegisterUserForm, LoginUserForm, AddNoteForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///flask_notes'
@@ -20,6 +20,7 @@ def homepage():
     ''' Redirects user to register page. '''
     return redirect('/register')
 
+############## USER ROUTES ##################
 @app.route('/register', methods=['GET','POST'])
 def register_page():
     ''' Displays regiser user form and handles
@@ -83,9 +84,58 @@ def secret_page(username):
         
     user = User.query.get_or_404(username)
     return render_template("user_info.html", user=user)
+
+@app.route('/users/<username>/delete')
+def delete_user(username):
+    ''' Delete user and all of user's notes from database. '''
+    if "user" not in session:
+        # flash("You must be logged in to view!")
+        return redirect("/login")
+    elif session.get('user') != username:
+        return redirect(f"/users/{session['user']}")
+
+    user = User.query.get_or_404(username)
+
+    for note in user.notes:
+        db.session.delete(note)
+    db.session.delete(user)
+    db.session.commit()
+
+    return redirect('/')
     
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout_user():
     """logs the user out and redirects"""
     session.pop("user", None)
     return redirect("/")
+
+
+
+############## USER-NOTES ROUTES ##################
+
+@app.route('/users/<username>/notes/add', methods=['GET','POST'])
+def add_note(username):
+    ''' Displays add note form and handles
+        form submission '''
+
+    if "user" not in session:
+        # flash("You must be logged in to view!")
+        return redirect("/login")
+    elif session.get('user') != username:
+        return redirect(f"/users/{session['user']}")
+
+    form = AddNoteForm()
+
+    if form.validate_on_submit():
+        title = form.title.data
+        content = form.content.data
+
+        note = Note(title=title, content=content, owner=username)
+
+        db.session.add(note)
+        db.session.commit()
+
+        return redirect(f'/users/{username}')
+        
+    else:
+        return render_template("add_note.html", form=form)
