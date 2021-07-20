@@ -15,3 +15,7 @@ db.create_all()
 @app.route('/')
 def homepage():
     return redirect('/register')
+
+@app.route('/register', methods=['GET','POST'])
+def register_page():
+    
