@@ -12,26 +12,24 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-    {% if session['user'] %}
+    
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" href="#">Flask-Notes</a>
         <div class="container-fluid">
-            <form class="d-flex flex-row-reverse" action='/logout' method='POST'>
-              <button class="btn btn-secondary my-2 my-sm-0" type="submit">Logout</button>
+            {% if session['user'] %}
+            
+            <form class='ml-auto' action='/logout' method='POST'>
+              <button class="btn btn-secondary ml-auto" type="submit">Logout</button>
             </form>
-        </div>
-    </nav>
-    {% else %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">Flask-Notes</a>
-        <div class="container-fluid">
+            {% else %}
             <button 
-                class="btn btn-secondary my-2 my-sm-0 d-flex flex-row-reverse" 
+                class="btn btn-secondary ml-auto" 
                 onclick="window.location.href='/login';">Login
             </button>
+            {% endif %}
         </div>
     </nav>
-    {% endif %}
+    
     <div class = "container">
         {% block content %}
         {% endblock %}    

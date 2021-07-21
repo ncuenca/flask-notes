@@ -25,6 +25,10 @@ def homepage():
 def register_page():
     ''' Displays regiser user form and handles
         form submission. '''
+
+    if "user" in session:
+        return redirect(f"/users/{session['user']}")
+
     form = RegisterUserForm()
 
     if form.validate_on_submit():
@@ -55,6 +59,10 @@ def register_page():
 def login_page():
     ''' Displays login user form and handles
         form submission '''
+
+    if "user" in session:
+        return redirect(f"/users/{session['user']}")
+
     form = LoginUserForm()
 
     if form.validate_on_submit():
