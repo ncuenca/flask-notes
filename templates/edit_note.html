@@ -1,4 +1,9 @@
-{{ form.hidden_tag() }}
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form method='POST'>
+    {{ form.hidden_tag() }}
   
     {% for field in form
            if field.widget.input_type != 'hidden' %}
@@ -13,3 +18,8 @@
       </p>
   
     {% endfor %}
+<button class="btn btn-primary" type="submit" id="edit-note">Edit Note</button>
+</form>
+
+
+{% endblock %}  

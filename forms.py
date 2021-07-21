@@ -27,11 +27,12 @@ class LoginUserForm(FlaskForm):
     password = PasswordField("password",
                     validators = [InputRequired()])
 
-class AddNoteForm(FlaskForm):
+class NoteForm(FlaskForm):
     """Form for adding note."""
 
     title = StringField("title",
                     validators = [InputRequired(), Length(max=100)])
-    content = TextArea("content",
+    content = StringField("content", 
+                    widget=TextArea(),
                     validators = [InputRequired()])
 

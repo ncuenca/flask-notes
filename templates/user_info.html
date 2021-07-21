@@ -12,11 +12,40 @@
 <ul>
     <!-- TODO: add links to edit/delete each note -->
     {% for note in user.notes %}
-        {{ note.title }}
+        <li>
+        <form>
+            <a href="/notes/{{note.id}}/update"><i class="fas fa-edit"></i></a>
+            
+            {{ note.title }}
+            
+            <button formaction="/notes/{{note.id}}/delete"
+                formmethod="POST"
+                style = "background: none; border: none; color:#cb4b16;">
+                <i class="fas fa-trash"></i>
+            </button>
+        </form>
+        </li>
+        
     {% endfor %}
 </ul>
 
-<!-- TODO: add link to form to add notes -->
+<form>
+    <button 
+        formaction="/users/{{user.username}}/notes/add" 
+        class="btn btn-primary"
+        formmethod="GET"
+        >
+        Create note
+    </button>
+    
+    <button 
+        formaction="/users/{{user.username}}/delete" 
+        class="btn btn-warning"
+        formmethod="POST"
+        >
+        DELETE USER
+    </button>
+</form>
 <!-- TODO: add button to delete user account and notes -->
 
 

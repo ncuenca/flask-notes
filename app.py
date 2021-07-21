@@ -3,7 +3,7 @@
 
 from flask import Flask, render_template, redirect, session
 from models import db, connect_db, User, Note
-from forms import RegisterUserForm, LoginUserForm, AddNoteForm
+from forms import RegisterUserForm, LoginUserForm, NoteForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///flask_notes'
@@ -46,7 +46,7 @@ def register_page():
         db.session.commit()
 
         session['user'] = username
-        return redirect("/secret")
+        return redirect(f"/users/{username}")
 
     else:
         return render_template("register.html", form=form)
@@ -68,6 +68,7 @@ def login_page():
             return redirect(f"/users/{username}")
         else:
             form.username.errors = ["Wrong username/password combination"]
+            return render_template("login.html", form=form)
     else:
         return render_template("login.html", form=form)
     
@@ -75,21 +76,18 @@ def login_page():
 def secret_page(username):
     """If the user is logged in, let them see this page,
     otherwise redirect to login"""
-    # breakpoint()
     if "user" not in session:
-        # flash("You must be logged in to view!")
         return redirect("/login")
-    elif session.get('user') != username:
+    elif session['user'] != username:
         return redirect(f"/users/{session['user']}")
         
     user = User.query.get_or_404(username)
     return render_template("user_info.html", user=user)
 
-@app.route('/users/<username>/delete')
+@app.route('/users/<username>/delete', methods=["POST"])
 def delete_user(username):
     ''' Delete user and all of user's notes from database. '''
     if "user" not in session:
-        # flash("You must be logged in to view!")
         return redirect("/login")
     elif session.get('user') != username:
         return redirect(f"/users/{session['user']}")
@@ -100,6 +98,8 @@ def delete_user(username):
         db.session.delete(note)
     db.session.delete(user)
     db.session.commit()
+
+    session.pop("user", None)
 
     return redirect('/')
     
@@ -124,7 +124,7 @@ def add_note(username):
     elif session.get('user') != username:
         return redirect(f"/users/{session['user']}")
 
-    form = AddNoteForm()
+    form = NoteForm()
 
     if form.validate_on_submit():
         title = form.title.data
@@ -134,8 +134,53 @@ def add_note(username):
 
         db.session.add(note)
         db.session.commit()
-
+        
         return redirect(f'/users/{username}')
         
     else:
         return render_template("add_note.html", form=form)
+        
+        
+############## NOTES ROUTES ##################
+
+@app.route('/notes/<int:note_id>/update', methods=['GET','POST'])
+def update_note(note_id):
+    """Display a form to edit a note on GET
+    Update a note and redirect to /users/<username> on POST
+    """
+    note = Note.query.get_or_404(note_id)
+    
+    if "user" not in session:
+        return redirect("/login")
+    elif session.get('user') != note.owner:
+        return redirect(f"/users/{session['user']}")
+
+    form = NoteForm(title=note.title, content=note.content)
+
+    if form.validate_on_submit():
+        title = form.title.data
+        content = form.content.data
+
+        note.title = title
+        note.content = content
+
+        db.session.commit()
+        
+        return redirect(f'/users/{session["user"]}')
+        
+    else:
+        return render_template("edit_note.html", form=form)
+        
+@app.route('/notes/<int:note_id>/delete', methods=['POST'])
+def delete_note(note_id):
+
+    note = Note.query.get_or_404(note_id)
+    
+    if "user" not in session:
+        return redirect("/login")
+    elif session.get('user') != note.owner:
+        return redirect(f"/users/{session['user']}")
+    
+    db.session.delete(note)
+    db.session.commit()
+    return redirect(f"/users/{session['user']}")

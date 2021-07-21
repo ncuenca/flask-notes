@@ -22,7 +22,7 @@ class User(db.Model):
                     primary_key=True)
     password = db.Column(db.Text,
                     nullable=False)
-    email = db.Column(db.Text,
+    email = db.Column(db.String(50),
                     nullable=False,
                     unique=True)
     first_name = db.Column(db.String(30),
